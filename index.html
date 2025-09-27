@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunus EMS - Protótipo MVP</title>
+    <!-- Carregamento do Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração do Tailwind para usar a fonte Inter e cores customizadas -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+        .flow-arrow {
+            /* Estilo para as setas animadas no diagrama de fluxo */
+            animation: flow 2s infinite linear;
+        }
+        @keyframes flow {
+            0% { transform: translateX(0); opacity: 1; }
+            50% { transform: translateX(10px); opacity: 0.5; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+        .flow-arrow.reverse {
+            animation: flow-reverse 2s infinite linear;
+        }
+        @keyframes flow-reverse {
+            0% { transform: translateX(0); opacity: 1; }
+            50% { transform: translateX(-10px); opacity: 0.5; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app" class="min-h-screen flex flex-col">
+    <!-- Cabeçalho e Navegação Principal -->
+    <header class="bg-white shadow-md p-4 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <svg class="w-8 h-8 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-8V6h2v2h-2zm0 4h2v-2h-2z"/>
+                </svg>
+                <span class="text-xl font-bold text-gray-800">Sunus EMS <span class="text-sm font-normal text-gray-500">v1.0 MVP</span></span>
+            </div>
+            <!-- Navegação -->
+            <nav class="flex space-x-2 sm:space-x-4">
+                <button id="nav-dashboard" onclick="changeView('dashboard')" class="nav-button py-2 px-3 sm:px-4 text-sm font-medium rounded-lg transition duration-150">Dashboard</button>
+                <button id="nav-eletropostos" onclick="changeView('eletropostos')" class="nav-button py-2 px-3 sm:px-4 text-sm font-medium rounded-lg transition duration-150">Eletropostos</button>
+                <button id="nav-alertas" onclick="changeView('alertas')" class="nav-button py-2 px-3 sm:px-4 text-sm font-medium rounded-lg transition duration-150">Alertas</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Container Principal de Conteúdo -->
+    <main class="flex-grow p-4 sm:p-6 max-w-7xl w-full mx-auto">
+        <!-- As visualizações serão renderizadas aqui -->
+        <div id="view-container"></div>
+    </main>
+
+    <!-- Rodapé simples -->
+    <footer class="bg-gray-100 p-4 text-center text-xs text-gray-500">
+        <p>Protótipo MVP desenvolvido por: Sunus | Projeto de Inovação UFMG</p>
+    </footer>
+</div>
+
+<!-- JavaScript para a lógica do MVP -->
+<script>
+    const viewContainer = document.getElementById('view-container');
+    let currentView = 'dashboard';
+
+    // --- Mock Data (Dados Fictícios) ---
+    const mockData = {
+        dashboard: {
+            solarGeneration: 55.4, // kW
+            totalConsumption: 48.1, // kW
+            bessCharge: 75, // %
+            gridImport: 0.0, // kW (Grid-Zero ativo)
+            gridExport: 0.0, // kW
+            savingsToday: 125.80, // R$
+            co2Avoided: 155.2, // kg
+        },
+        eletropostos: [
+            { id: 'EP001', status: 'Carregando', user: 'Hóspede A1', time: '1h 45m', power: 22, monetized: 15.75, lastUpdate: 'Agora' },
+            { id: 'EP002', status: 'Disponível', user: '-', time: '-', power: 7.4, monetized: 0.00, lastUpdate: '5 min atrás' },
+            { id: 'EP003', status: 'Ocupado', user: 'Turista XPTO', time: '0h 30m', power: 50, monetized: 8.50, lastUpdate: 'Agora' },
+        ],
+        alerts: [
+            { id: 1, type: 'CRÍTICO', message: 'BESS: Carga da bateria abaixo de 20%. Acionando carregamento prioritário.', timestamp: '26/09/2025 10:30', status: 'Pendente', color: 'bg-red-500' },
+            { id: 2, type: 'INFORMATIVO', message: 'Lógica Grid-Zero ativada: Geração solar limitada para manter exportação zero.', timestamp: '26/09/2025 12:00', status: 'Resolvido', color: 'bg-green-500' },
+            { id: 3, type: 'AVISO', message: 'Eletroposto EP003 Offline há 15 minutos. Verifique a conexão.', timestamp: '26/09/2025 11:45', status: 'Pendente', color: 'bg-yellow-500' },
+        ]
+    };
+
+    // --- Funções de Renderização de Views ---
+
+    function renderDashboard() {
+        const data = mockData.dashboard;
+        viewContainer.innerHTML = `
+                <h1 class="text-3xl font-extrabold text-gray-800 mb-6">Dashboard de Gestão de Energia (EMS)</h1>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    ${kpiCard('Geração Solar', `${data.solarGeneration} kW`, 'Geração atual do SFV', 'bg-yellow-100 text-yellow-800')}
+                    ${kpiCard('Consumo Local', `${data.totalConsumption} kW`, 'Demanda atual do estabelecimento', 'bg-blue-100 text-blue-800')}
+                    ${kpiCard('Economia Estimada (Hoje)', `R$ ${data.savingsToday.toFixed(2)}`, 'Em comparação com a rede', 'bg-green-100 text-green-800')}
+                    ${kpiCard('Bateria (BESS)', `${data.bessCharge}%`, 'Nível de carga', 'bg-purple-100 text-purple-800')}
+                </div>
+
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <!-- Diagrama de Fluxo de Energia (Módulo 2: Otimização) -->
+                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <h2 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Fluxo de Energia em Tempo Real
+                        </h2>
+                        ${energyFlowDiagram(data)}
+                    </div>
+
+                    <!-- Gráfico de Tendência (Módulo 1: Monitoramento) -->
+                    <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <h2 class="text-xl font-semibold text-gray-700 mb-4">Otimização (Peak Shaving)</h2>
+                        <p class="text-gray-500 mb-4 text-sm">Estratégia de gerenciamento de pico aplicada.</p>
+                        <!-- Simulação de Gráfico de Linha (Apenas um placeholder para o MVP) -->
+                        <div class="h-64 flex flex-col justify-end p-2 bg-gray-50 rounded-lg">
+                            <div class="text-xs text-gray-400 mb-1">Carga da Bateria vs. Consumo</div>
+                            <div class="flex items-end justify-between h-48">
+                                <div class="w-1/6 bg-blue-400 h-2/4 rounded-t-sm" title="Consumo"></div>
+                                <div class="w-1/6 bg-purple-400 h-3/4 rounded-t-sm" title="Bateria"></div>
+                                <div class="w-1/6 bg-blue-400 h-1/2 rounded-t-sm" title="Consumo"></div>
+                                <div class="w-1/6 bg-purple-400 h-4/5 rounded-t-sm" title="Bateria"></div>
+                                <div class="w-1/6 bg-blue-400 h-3/5 rounded-t-sm" title="Consumo"></div>
+                            </div>
+                            <div class="flex justify-between mt-2 text-xs text-gray-500">
+                                <span>08h</span>
+                                <span>12h</span>
+                                <span>18h</span>
+                                <span>20h</span>
+                                <span>22h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+    }
+
+    function kpiCard(title, value, subtitle, classes) {
+        return `
+                <div class="p-4 bg-white rounded-xl shadow-md border border-gray-100">
+                    <div class="text-xs font-semibold uppercase ${classes} inline-block px-2 py-1 rounded-full mb-2">${title}</div>
+                    <div class="text-3xl sm:text-4xl font-extrabold text-gray-900">${value}</div>
+                    <p class="text-sm text-gray-500 mt-1">${subtitle}</p>
+                </div>
+            `;
+    }
+
+    function energyFlowDiagram(data) {
+        const gridStatus = data.gridImport > 0 ? 'bg-red-500' : 'bg-green-500';
+        const gridText = data.gridImport > 0 ? 'Importando' : 'Exportação Zero (Grid-Zero Ativo)';
+        const gridArrowClass = data.gridImport > 0 ? 'flow-arrow' : 'flow-arrow reverse';
+
+        return `
+                <div class="flex flex-col items-center justify-center p-4">
+                    <!-- Top: Solar -->
+                    <div class="flex flex-col items-center">
+                        <svg class="w-16 h-16 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zM5.9 5.9A6 6 0 0110 4a6 6 0 014.1 1.9L10 10V4.9L5.9 5.9zm8.2 0L10 10V4.9l4.1 1.9zM10 14.1V10l4.1-1.9A6 6 0 0110 16a6 6 0 01-4.1-1.9L10 10zM5.9 14.1L10 10l-4.1-1.9z"></path></svg>
+                        <span class="font-bold text-lg mt-1">Solar PV</span>
+                        <span class="text-sm text-gray-500">${data.solarGeneration} kW</span>
+                    </div>
+
+                    <!-- Flow to Center -->
+                    <svg class="w-1 h-12 my-2 text-yellow-500 flow-arrow" viewBox="0 0 1 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 0V100" stroke="currentColor" stroke-width="1" stroke-dasharray="5 5"/></svg>
+
+                    <!-- Center Node: Inversor / Smart EMS -->
+                    <div class="flex items-center space-x-8 w-full justify-center">
+
+                        <!-- BESS (Esquerda) -->
+                        <div class="flex flex-col items-center">
+                            <svg class="w-12 h-12 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm6 4H7v2h2V9zm4 0h-2v2h2V9z" clip-rule="evenodd"></path></svg>
+                            <span class="font-bold text-base mt-1">BESS</span>
+                            <span class="text-sm text-gray-500">${data.bessCharge}%</span>
+                        </div>
+
+                        <!-- Arrow to BESS -->
+                        <div class="flex-grow flex items-center justify-end">
+                            <svg class="w-12 h-1 text-purple-600 flow-arrow reverse" viewBox="0 0 100 1" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 0.5H0" stroke="currentColor" stroke-width="1" stroke-dasharray="5 5"/></svg>
+                        </div>
+
+                        <!-- Center Core -->
+                        <div class="w-24 h-24 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-xl">
+                            EMS CORE
+                        </div>
+
+                        <!-- Arrow to Consumo (Direita) -->
+                        <div class="flex-grow flex items-center justify-start">
+                            <svg class="w-12 h-1 text-blue-600 flow-arrow" viewBox="0 0 100 1" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0.5H100" stroke="currentColor" stroke-width="1" stroke-dasharray="5 5"/></svg>
+                        </div>
+
+                        <!-- Consumo Local (Direita) -->
+                        <div class="flex flex-col items-center">
+                            <svg class="w-12 h-12 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zM6 7a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z"></path></svg>
+                            <span class="font-bold text-base mt-1">Consumo</span>
+                            <span class="text-sm text-gray-500">${data.totalConsumption} kW</span>
+                        </div>
+
+                    </div>
+
+                    <!-- Flow to Bottom (Grid e Eletropostos) -->
+                    <div class="flex justify-around w-full mt-4">
+                        <!-- Fluxo para a Rede -->
+                        <div class="flex flex-col items-center w-1/2">
+                            <svg class="w-1 h-12 my-2 text-gray-400 ${gridArrowClass}" viewBox="0 0 1 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 0V100" stroke="currentColor" stroke-width="1" stroke-dasharray="5 5"/></svg>
+                            <div class="flex flex-col items-center">
+                                <svg class="w-12 h-12 text-gray-600" fill="currentColor" viewBox="0 0 20 20"><path d="M17 12h-5l1.5-4H18l-1.5 4zM3 12h5l-1.5-4H2l1.5 4zM10 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1z"></path></svg>
+                                <div class="font-bold text-base mt-1">Rede Elétrica</div>
+                                <div class="text-sm text-white px-2 py-0.5 rounded ${gridStatus}">${gridText}</div>
+                                <span class="text-xs text-gray-500">${data.gridImport} kW</span>
+                            </div>
+                        </div>
+
+                        <!-- Fluxo para Eletropostos -->
+                        <div class="flex flex-col items-center w-1/2">
+                            <svg class="w-1 h-12 my-2 text-green-600 flow-arrow" viewBox="0 0 1 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 0V100" stroke="currentColor" stroke-width="1" stroke-dasharray="5 5"/></svg>
+                            <div class="flex flex-col items-center">
+                                <svg class="w-12 h-12 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path d="M12 2a2 2 0 00-2 2v.5a.5.5 0 001 0V4a1 1 0 012 0v.5a.5.5 0 001 0V4a2 2 0 00-2-2zM9 7a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1zM5 10a2 2 0 00-2 2v3a2 2 0 002 2h10a2 2 0 002-2v-3a2 2 0 00-2-2H5zm0 1h10a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3a1 1 0 011-1z"></path></svg>
+                                <span class="font-bold text-base mt-1">Eletropostos</span>
+                                <span class="text-sm text-gray-500">3/3 OPs</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+    }
+
+    function renderEletropostos() {
+        const chargers = mockData.eletropostos;
+        viewContainer.innerHTML = `
+                <h1 class="text-3xl font-extrabold text-gray-800 mb-6">Gestão de Eletropostos (Monetização)</h1>
+
+                <!-- Charger Status Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    ${chargers.map(charger => renderChargerCard(charger)).join('')}
+                </div>
+
+                <!-- Tabela de Relatórios de Uso (Módulo 3: Monetização) -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Relatório de Sessões de Recarga (Últimas 24h)</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="py-3 px-4">ID</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4">Usuário</th>
+                                    <th class="py-3 px-4">Duração</th>
+                                    <th class="py-3 px-4">Potência (kW)</th>
+                                    <th class="py-3 px-4">Valor R$ (Monetização)</th>
+                                    <th class="py-3 px-4">Atualização</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                                ${chargers.map(session => renderSessionRow(session)).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+    }
+
+    function renderChargerCard(charger) {
+        let statusClass, iconPath;
+        switch (charger.status) {
+            case 'Carregando':
+                statusClass = 'bg-green-500';
+                iconPath = 'M13 10V3L4 14h7v7l9-11h-7z';
+                break;
+            case 'Disponível':
+                statusClass = 'bg-indigo-500';
+                iconPath = 'M9 2a1 1 0 00-1 1v.5a.5.5 0 001 0V3h2v.5a.5.5 0 001 0V3a1 1 0 00-1-1H9zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z';
+                break;
+            case 'Ocupado':
+                statusClass = 'bg-yellow-500';
+                iconPath = 'M10 2a8 8 0 100 16A8 8 0 0010 2zm1 13h-2v-2h2v2zm0-4h-2V7h2v4z';
+                break;
+            default:
+                statusClass = 'bg-gray-500';
+                iconPath = 'M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z';
+        }
+
+        return `
+                <div class="bg-white p-5 rounded-xl shadow-lg border border-gray-100 flex items-center justify-between">
+                    <div>
+                        <div class="text-xl font-semibold text-gray-800 mb-1">${charger.id} (${charger.power}kW)</div>
+                        <div class="text-3xl font-bold ${statusClass} inline-block px-3 py-1 text-white rounded-lg">${charger.status}</div>
+                        <p class="text-sm text-gray-500 mt-2">Duração: ${charger.time} | Receita: R$ ${charger.monetized.toFixed(2)}</p>
+                    </div>
+                    <div class="ml-4 p-3 rounded-full ${statusClass} bg-opacity-10">
+                         <svg class="w-8 h-8 ${statusClass.replace('bg-', 'text-')}" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="${iconPath}" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                </div>
+            `;
+    }
+
+    function renderSessionRow(session) {
+        return `
+                <tr>
+                    <td class="py-3 px-4 font-medium">${session.id}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${session.status === 'Carregando' ? 'bg-green-100 text-green-800' : session.status === 'Ocupado' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}">
+                            ${session.status}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-gray-600">${session.user}</td>
+                    <td class="py-3 px-4">${session.time}</td>
+                    <td class="py-3 px-4">${session.power} kW</td>
+                    <td class="py-3 px-4 font-bold text-green-700">R$ ${session.monetized.toFixed(2)}</td>
+                    <td class="py-3 px-4 text-xs text-gray-400">${session.lastUpdate}</td>
+                </tr>
+            `;
+    }
+
+    function renderAlertas() {
+        const alerts = mockData.alerts;
+        viewContainer.innerHTML = `
+                <h1 class="text-3xl font-extrabold text-gray-800 mb-6">Alertas e Notificações (Manutenção Preditiva)</h1>
+
+                <!-- Resumo de Alertas -->
+                <div class="p-4 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 rounded-lg shadow-md mb-8">
+                    <p class="font-bold">Atenção!</p>
+                    <p class="text-sm">Existem ${alerts.filter(a => a.status === 'Pendente').length} alertas em aberto. Otimização e estabilidade da rede podem estar comprometidas.</p>
+                </div>
+
+                <!-- Lista de Alertas (Módulo 1: Alertas e Notificações) -->
+                <div class="space-y-4">
+                    ${alerts.map(alert => renderAlertRow(alert)).join('')}
+                </div>
+            `;
+    }
+
+    function renderAlertRow(alert) {
+        return `
+                <div class="bg-white p-4 rounded-xl shadow-lg flex items-start space-x-4 hover:shadow-xl transition duration-150 border border-gray-100">
+                    <div class="flex-shrink-0 w-3 h-3 mt-1 rounded-full ${alert.color}"></div>
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-sm text-gray-800">${alert.type} - ${alert.message}</span>
+                            <span class="text-xs text-gray-400">${alert.timestamp}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Status: <span class="font-medium ${alert.status === 'Pendente' ? 'text-red-600' : 'text-green-600'}">${alert.status}</span></p>
+                    </div>
+                </div>
+            `;
+    }
+
+    // --- Lógica de Navegação ---
+
+    function updateNavButtons(activeView) {
+        document.querySelectorAll('.nav-button').forEach(button => {
+            if (button.id === `nav-${activeView}`) {
+                button.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
+                button.classList.remove('bg-transparent', 'text-gray-600', 'hover:bg-gray-50');
+            } else {
+                button.classList.add('bg-transparent', 'text-gray-600', 'hover:bg-gray-100');
+                button.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
+            }
+        });
+    }
+
+    function changeView(view) {
+        currentView = view;
+        updateNavButtons(view);
+        switch (view) {
+            case 'dashboard':
+                renderDashboard();
+                break;
+            case 'eletropostos':
+                renderEletropostos();
+                break;
+            case 'alertas':
+                renderAlertas();
+                break;
+        }
+    }
+
+    // Inicializa a aplicação com a view 'dashboard'
+    window.onload = () => {
+        changeView(currentView);
+    };
+</script>
+</body>
+</html>
