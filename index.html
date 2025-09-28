@@ -1,98 +1,176 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sunus EMS - Protótipo MVP</title>
-    <!-- Carregamento do Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f9fb;
-        }
-        .flow-arrow {
-            animation: flow 2s infinite linear;
-        }
-        @keyframes flow {
-            0% { transform: translateX(0); opacity: 1; }
-            50% { transform: translateX(10px); opacity: 0.5; }
-            100% { transform: translateX(0); opacity: 1; }
-        }
-        .flow-arrow.reverse {
-            animation: flow-reverse 2s infinite linear;
-        }
-        @keyframes flow-reverse {
-            0% { transform: translateX(0); opacity: 1; }
-            50% { transform: translateX(-10px); opacity: 0.5; }
-            100% { transform: translateX(0); opacity: 1; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sunus EMS - Protótipo MVP</title>
+  <!-- Carregamento do Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f7f9fb;
+    }
+
+    .flow-arrow {
+      animation: flow 2s infinite linear;
+    }
+
+    @keyframes flow {
+      0% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      50% {
+        transform: translateX(10px);
+        opacity: 0.5;
+      }
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .flow-arrow.reverse {
+      animation: flow-reverse 2s infinite linear;
+    }
+
+    @keyframes flow-reverse {
+      0% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      50% {
+        transform: translateX(-10px);
+        opacity: 0.5;
+      }
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  </style>
 </head>
 <body>
 <div id="app" class="min-h-screen flex flex-col">
-    <!-- Cabeçalho e Navegação Principal -->
-    <header class="bg-white shadow-md p-2 sm:p-4 sticky top-0 z-10">
-        <div class="max-w-full md:max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-            <div class="flex items-center space-x-2">
-                <svg class="w-8 h-8 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-8V6h2v2h-2zm0 4h2v-2h-2z"/>
-                </svg>
-                <span class="text-lg sm:text-xl font-bold text-gray-800">Sunus EMS <span class="text-xs sm:text-sm font-normal text-gray-500">v1.0 MVP</span></span>
-            </div>
-            <!-- Navegação -->
-            <nav class="flex flex-wrap gap-2 sm:gap-4">
-                <button id="nav-dashboard" onclick="changeView('dashboard')" class="nav-button py-2 px-3 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition duration-150">Dashboard</button>
-                <button id="nav-eletropostos" onclick="changeView('eletropostos')" class="nav-button py-2 px-3 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition duration-150">Eletropostos</button>
-                <button id="nav-alertas" onclick="changeView('alertas')" class="nav-button py-2 px-3 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition duration-150">Alertas</button>
-            </nav>
-        </div>
-    </header>
+  <!-- Cabeçalho e Navegação Principal -->
+  <header class="bg-white shadow-md p-2 sm:p-4 sticky top-0 z-10">
+    <div class="max-w-full md:max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+      <div class="flex items-center space-x-2">
+        <svg class="w-8 h-8 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-8V6h2v2h-2zm0 4h2v-2h-2z"/>
+        </svg>
+        <span class="text-lg sm:text-xl font-bold text-gray-800">Sunus EMS <span
+          class="text-xs sm:text-sm font-normal text-gray-500">v1.0 MVP</span></span>
+      </div>
+      <!-- Navegação -->
+      <nav class="flex flex-wrap gap-2 sm:gap-4">
+        <button id="nav-dashboard" onclick="changeView('dashboard')"
+                class="nav-button py-2 px-3 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition duration-150">
+          Dashboard
+        </button>
+        <button id="nav-eletropostos" onclick="changeView('eletropostos')"
+                class="nav-button py-2 px-3 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition duration-150">
+          Eletropostos
+        </button>
+        <button id="nav-alertas" onclick="changeView('alertas')"
+                class="nav-button py-2 px-3 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition duration-150">
+          Alertas
+        </button>
+        <button id="nav-paineis" onclick="changeView('paineis')"
+                class="nav-button py-2 px-3 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition duration-150">
+          Painéis
+        </button>
+      </nav>
+    </div>
+  </header>
 
-    <!-- Container Principal de Conteúdo -->
-    <main class="flex-grow p-2 sm:p-4 md:p-6 max-w-full md:max-w-7xl w-full mx-auto">
-        <div id="view-container"></div>
-    </main>
+  <!-- Container Principal de Conteúdo -->
+  <main class="flex-grow p-2 sm:p-4 md:p-6 max-w-full md:max-w-7xl w-full mx-auto">
+    <div id="view-container"></div>
+  </main>
 
-    <!-- Rodapé simples -->
-    <footer class="bg-gray-100 p-2 sm:p-4 text-center text-xs text-gray-500">
-        <p>Protótipo MVP desenvolvido por: Sunus | Projeto de Inovação UFMG</p>
-    </footer>
+  <!-- Rodapé simples -->
+  <footer class="bg-gray-100 p-2 sm:p-4 text-center text-xs text-gray-500">
+    <p>Protótipo MVP desenvolvido por: Sunus | Projeto de Inovação UFMG</p>
+  </footer>
 </div>
 
 <script>
-    const viewContainer = document.getElementById('view-container');
-    let currentView = 'dashboard';
+  const viewContainer = document.getElementById('view-container');
+  let currentView = 'dashboard';
 
-    // --- Mock Data (Dados Fictícios) ---
-    const mockData = {
-        dashboard: {
-            solarGeneration: 55.4,
-            totalConsumption: 48.1,
-            bessCharge: 75,
-            gridImport: 0.0,
-            gridExport: 0.0,
-            savingsToday: 125.80,
-            co2Avoided: 155.2,
-        },
-        eletropostos: [
-            { id: 'EP001', status: 'Carregando', user: 'Hóspede A1', time: '1h 45m', power: 22, monetized: 15.75, lastUpdate: 'Agora' },
-            { id: 'EP002', status: 'Disponível', user: '-', time: '-', power: 7.4, monetized: 0.00, lastUpdate: '5 min atrás' },
-            { id: 'EP003', status: 'Ocupado', user: 'Turista XPTO', time: '0h 30m', power: 50, monetized: 8.50, lastUpdate: 'Agora' },
-        ],
-        alerts: [
-            { id: 1, type: 'CRÍTICO', message: 'BESS: Carga da bateria abaixo de 20%. Acionando carregamento prioritário.', timestamp: '26/09/2025 10:30', status: 'Pendente', color: 'bg-red-500' },
-            { id: 2, type: 'INFORMATIVO', message: 'Lógica Grid-Zero ativada: Geração solar limitada para manter exportação zero.', timestamp: '26/09/2025 12:00', status: 'Resolvido', color: 'bg-green-500' },
-            { id: 3, type: 'AVISO', message: 'Eletroposto EP003 Offline há 15 minutos. Verifique a conexão.', timestamp: '26/09/2025 11:45', status: 'Pendente', color: 'bg-yellow-500' },
-        ]
-    };
+  // --- Mock Data (Dados Fictícios) ---
+  const mockData = {
+    dashboard: {
+      solarGeneration: 55.4,
+      totalConsumption: 48.1,
+      bessCharge: 75,
+      gridImport: 0.0,
+      gridExport: 0.0,
+      savingsToday: 125.80,
+      co2Avoided: 155.2,
+    },
+    eletropostos: [
+      {
+        id: 'EP001',
+        status: 'Carregando',
+        user: 'Hóspede A1',
+        time: '1h 45m',
+        power: 22,
+        monetized: 15.75,
+        lastUpdate: 'Agora'
+      },
+      {id: 'EP002', status: 'Disponível', user: '-', time: '-', power: 7.4, monetized: 0.00, lastUpdate: '5 min atrás'},
+      {
+        id: 'EP003',
+        status: 'Ocupado',
+        user: 'Turista XPTO',
+        time: '0h 30m',
+        power: 50,
+        monetized: 8.50,
+        lastUpdate: 'Agora'
+      },
+    ],
+    alerts: [
+      {
+        id: 1,
+        type: 'CRÍTICO',
+        message: 'BESS: Carga da bateria abaixo de 20%. Acionando carregamento prioritário.',
+        timestamp: '26/09/2025 10:30',
+        status: 'Pendente',
+        color: 'bg-red-500'
+      },
+      {
+        id: 2,
+        type: 'INFORMATIVO',
+        message: 'Lógica Grid-Zero ativada: Geração solar limitada para manter exportação zero.',
+        timestamp: '26/09/2025 12:00',
+        status: 'Resolvido',
+        color: 'bg-green-500'
+      },
+      {
+        id: 3,
+        type: 'AVISO',
+        message: 'Eletroposto EP003 Offline há 15 minutos. Verifique a conexão.',
+        timestamp: '26/09/2025 11:45',
+        status: 'Pendente',
+        color: 'bg-yellow-500'
+      },
+    ],
+    panels: [
+      {id: 'PV001', location: 'Cobertura A', status: 'Ativo', lastUpdate: 'Agora'},
+      {id: 'PV002', location: 'Cobertura B', status: 'Manutenção', lastUpdate: '10 min atrás'}
+    ]
+  };
 
-    // --- Funções de Renderização de Views ---
+  // --- Funções de Renderização de Views ---
 
-    function renderDashboard() {
-        const data = mockData.dashboard;
-        viewContainer.innerHTML = `
+  function renderDashboard() {
+    const data = mockData.dashboard;
+    viewContainer.innerHTML = `
             <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4 sm:mb-6">Dashboard de Gestão de Energia (EMS)</h1>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6 sm:mb-8">
                 ${kpiCard('Geração Solar', `${data.solarGeneration} kW`, 'Geração atual do SFV', 'bg-yellow-100 text-yellow-800')}
@@ -131,24 +209,24 @@
                 </div>
             </div>
         `;
-    }
+  }
 
-    function kpiCard(title, value, subtitle, classes) {
-        return `
+  function kpiCard(title, value, subtitle, classes) {
+    return `
             <div class="p-3 sm:p-4 bg-white rounded-xl shadow-md border border-gray-100">
                 <div class="text-xs font-semibold uppercase ${classes} inline-block px-2 py-1 rounded-full mb-1 sm:mb-2">${title}</div>
                 <div class="text-2xl sm:text-3xl font-extrabold text-gray-900">${value}</div>
                 <p class="text-xs sm:text-sm text-gray-500 mt-1">${subtitle}</p>
             </div>
         `;
-    }
+  }
 
-    function energyFlowDiagram(data) {
-        const gridStatus = data.gridImport > 0 ? 'bg-red-500' : 'bg-green-500';
-        const gridText = data.gridImport > 0 ? 'Importando' : 'Exportação Zero (Grid-Zero Ativo)';
-        const gridArrowClass = data.gridImport > 0 ? 'flow-arrow' : 'flow-arrow reverse';
+  function energyFlowDiagram(data) {
+    const gridStatus = data.gridImport > 0 ? 'bg-red-500' : 'bg-green-500';
+    const gridText = data.gridImport > 0 ? 'Importando' : 'Exportação Zero (Grid-Zero Ativo)';
+    const gridArrowClass = data.gridImport > 0 ? 'flow-arrow' : 'flow-arrow reverse';
 
-        return `
+    return `
             <div class="flex flex-col items-center justify-center p-2 sm:p-4">
                 <div class="flex flex-col items-center">
                     <svg class="w-12 h-12 sm:w-16 sm:h-16 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zM5.9 5.9A6 6 0 0110 4a6 6 0 014.1 1.9L10 10V4.9L5.9 5.9zm8.2 0L10 10V4.9l4.1 1.9zM10 14.1V10l4.1-1.9A6 6 0 0110 16a6 6 0 01-4.1-1.9L10 10zM5.9 14.1L10 10l-4.1-1.9z"></path></svg>
@@ -198,11 +276,11 @@
                 </div>
             </div>
         `;
-    }
+  }
 
-    function renderEletropostos() {
-        const chargers = mockData.eletropostos;
-        viewContainer.innerHTML = `
+  function renderEletropostos() {
+    const chargers = mockData.eletropostos;
+    viewContainer.innerHTML = `
             <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4 sm:mb-6">Gestão de Eletropostos (Monetização)</h1>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 ${chargers.map(charger => renderChargerCard(charger)).join('')}
@@ -229,29 +307,89 @@
                 </div>
             </div>
         `;
+  }
+
+  function renderPaineis() {
+    const panels = mockData.panels;
+    viewContainer.innerHTML = `
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4 sm:mb-6">Cadastro e Monitoramento de Painéis Solares</h1>
+        <form id="panel-form" class="bg-white p-4 rounded-xl shadow-md border border-gray-100 mb-6 flex flex-col sm:flex-row gap-2 sm:gap-4 items-end">
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">ID do Dispositivo</label>
+                <input type="text" id="panel-id" required class="border rounded px-2 py-1 text-sm w-full" placeholder="Ex: PV003">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Localização</label>
+                <input type="text" id="panel-location" required class="border rounded px-2 py-1 text-sm w-full" placeholder="Ex: Cobertura C">
+            </div>
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded font-bold text-sm">Cadastrar</button>
+        </form>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="py-2 px-4">ID</th>
+                        <th class="py-2 px-4">Localização</th>
+                        <th class="py-2 px-4">Status</th>
+                        <th class="py-2 px-4">Última Atualização</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200 text-xs sm:text-sm">
+                    ${panels.map(panel => `
+                        <tr>
+                            <td class="py-2 px-4 font-medium">${panel.id}</td>
+                            <td class="py-2 px-4">${panel.location}</td>
+                            <td class="py-2 px-4">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${panel.status === 'Ativo' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                                    ${panel.status}
+                                </span>
+                            </td>
+                            <td class="py-2 px-4 text-xs text-gray-400">${panel.lastUpdate}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    // Form handler
+    document.getElementById('panel-form').onsubmit = function (e) {
+      e.preventDefault();
+      const id = document.getElementById('panel-id').value.trim();
+      const location = document.getElementById('panel-location').value.trim();
+      if (id && location) {
+        mockData.panels.push({
+          id,
+          location,
+          status: 'Ativo',
+          lastUpdate: 'Agora'
+        });
+        renderPaineis();
+      }
+    };
+  }
+
+  function renderChargerCard(charger) {
+    let statusClass, iconPath;
+    switch (charger.status) {
+      case 'Carregando':
+        statusClass = 'bg-green-500';
+        iconPath = 'M13 10V3L4 14h7v7l9-11h-7z';
+        break;
+      case 'Disponível':
+        statusClass = 'bg-indigo-500';
+        iconPath = 'M9 2a1 1 0 00-1 1v.5a.5.5 0 001 0V3h2v.5a.5.5 0 001 0V3a1 1 0 00-1-1H9zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z';
+        break;
+      case 'Ocupado':
+        statusClass = 'bg-yellow-500';
+        iconPath = 'M10 2a8 8 0 100 16A8 8 0 0010 2zm1 13h-2v-2h2v2zm0-4h-2V7h2v4z';
+        break;
+      default:
+        statusClass = 'bg-gray-500';
+        iconPath = 'M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z';
     }
 
-    function renderChargerCard(charger) {
-        let statusClass, iconPath;
-        switch (charger.status) {
-            case 'Carregando':
-                statusClass = 'bg-green-500';
-                iconPath = 'M13 10V3L4 14h7v7l9-11h-7z';
-                break;
-            case 'Disponível':
-                statusClass = 'bg-indigo-500';
-                iconPath = 'M9 2a1 1 0 00-1 1v.5a.5.5 0 001 0V3h2v.5a.5.5 0 001 0V3a1 1 0 00-1-1H9zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z';
-                break;
-            case 'Ocupado':
-                statusClass = 'bg-yellow-500';
-                iconPath = 'M10 2a8 8 0 100 16A8 8 0 0010 2zm1 13h-2v-2h2v2zm0-4h-2V7h2v4z';
-                break;
-            default:
-                statusClass = 'bg-gray-500';
-                iconPath = 'M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z';
-        }
-
-        return `
+    return `
             <div class="bg-white p-4 sm:p-5 rounded-xl shadow-lg border border-gray-100 flex items-center justify-between">
                 <div>
                     <div class="text-lg sm:text-xl font-semibold text-gray-800 mb-1">${charger.id} (${charger.power}kW)</div>
@@ -265,10 +403,10 @@
                 </div>
             </div>
         `;
-    }
+  }
 
-    function renderSessionRow(session) {
-        return `
+  function renderSessionRow(session) {
+    return `
             <tr>
                 <td class="py-2 sm:py-3 px-2 sm:px-4 font-medium">${session.id}</td>
                 <td class="py-2 sm:py-3 px-2 sm:px-4">
@@ -283,11 +421,11 @@
                 <td class="py-2 sm:py-3 px-2 sm:px-4 text-xs text-gray-400">${session.lastUpdate}</td>
             </tr>
         `;
-    }
+  }
 
-    function renderAlertas() {
-        const alerts = mockData.alerts;
-        viewContainer.innerHTML = `
+  function renderAlertas() {
+    const alerts = mockData.alerts;
+    viewContainer.innerHTML = `
             <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4 sm:mb-6">Alertas e Notificações (Manutenção Preditiva)</h1>
             <div class="p-3 sm:p-4 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 rounded-lg shadow-md mb-6 sm:mb-8">
                 <p class="font-bold">Atenção!</p>
@@ -297,10 +435,10 @@
                 ${alerts.map(alert => renderAlertRow(alert)).join('')}
             </div>
         `;
-    }
+  }
 
-    function renderAlertRow(alert) {
-        return `
+  function renderAlertRow(alert) {
+    return `
             <div class="bg-white p-3 sm:p-4 rounded-xl shadow-lg flex items-start space-x-2 sm:space-x-4 hover:shadow-xl transition duration-150 border border-gray-100">
                 <div class="flex-shrink-0 w-2 h-2 sm:w-3 sm:h-3 mt-1 rounded-full ${alert.color}"></div>
                 <div class="flex-grow">
@@ -312,41 +450,44 @@
                 </div>
             </div>
         `;
+  }
+
+  // --- Lógica de Navegação ---
+
+  function updateNavButtons(activeView) {
+    document.querySelectorAll('.nav-button').forEach(button => {
+      if (button.id === `nav-${activeView}`) {
+        button.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
+        button.classList.remove('bg-transparent', 'text-gray-600', 'hover:bg-gray-100');
+      } else {
+        button.classList.add('bg-transparent', 'text-gray-600', 'hover:bg-gray-100');
+        button.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
+      }
+    });
+  }
+
+  function changeView(view) {
+    currentView = view;
+    updateNavButtons(view);
+    switch (view) {
+      case 'dashboard':
+        renderDashboard();
+        break;
+      case 'eletropostos':
+        renderEletropostos();
+        break;
+      case 'alertas':
+        renderAlertas();
+        break;
+      case 'paineis':
+        renderPaineis();
+        break;
     }
+  }
 
-    // --- Lógica de Navegação ---
-
-    function updateNavButtons(activeView) {
-        document.querySelectorAll('.nav-button').forEach(button => {
-            if (button.id === `nav-${activeView}`) {
-                button.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
-                button.classList.remove('bg-transparent', 'text-gray-600', 'hover:bg-gray-100');
-            } else {
-                button.classList.add('bg-transparent', 'text-gray-600', 'hover:bg-gray-100');
-                button.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
-            }
-        });
-    }
-
-    function changeView(view) {
-        currentView = view;
-        updateNavButtons(view);
-        switch (view) {
-            case 'dashboard':
-                renderDashboard();
-                break;
-            case 'eletropostos':
-                renderEletropostos();
-                break;
-            case 'alertas':
-                renderAlertas();
-                break;
-        }
-    }
-
-    window.onload = () => {
-        changeView(currentView);
-    };
+  window.onload = () => {
+    changeView(currentView);
+  };
 </script>
 </body>
 </html>
