@@ -3,491 +3,976 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sunus EMS - Protótipo MVP</title>
-  <!-- Carregamento do Tailwind CSS -->
+  <title>Sunus EMS - Sistema Inteligente de Gestão Energética</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #f7f9fb;
+      background: #121212;
+      min-height: 100vh;
     }
 
-    .flow-arrow {
-      animation: flow 2s infinite linear;
+    .glass-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     }
 
-    @keyframes flow {
-      0% {
-        transform: translateX(0);
-        opacity: 1;
-      }
-      50% {
-        transform: translateX(10px);
-        opacity: 0.5;
-      }
-      100% {
-        transform: translateX(0);
-        opacity: 1;
-      }
+    .energy-flow {
+      animation: energyPulse 3s infinite ease-in-out;
     }
 
-    .flow-arrow.reverse {
-      animation: flow-reverse 2s infinite linear;
+    @keyframes energyPulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
     }
 
-    @keyframes flow-reverse {
-      0% {
-        transform: translateX(0);
-        opacity: 1;
-      }
-      50% {
-        transform: translateX(-10px);
-        opacity: 0.5;
-      }
-      100% {
-        transform: translateX(0);
-        opacity: 1;
-      }
+    .metric-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+      backdrop-filter: blur(15px);
+      transition: all 0.3s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+
+    .nav-active {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+
+    .charging-animation {
+      animation: charging 2s infinite linear;
+    }
+
+    @keyframes charging {
+      0% { stroke-dashoffset: 100; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .revenue-chart {
+      background: linear-gradient(45deg, #00c851, #00ff88);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
   </style>
 </head>
 <body>
-<div id="app" class="min-h-screen flex flex-col">
-  <!-- Cabeçalho e Navegação Principal -->
-  <header class="bg-white shadow-md p-2 sm:p-4 sticky top-0 z-10">
-    <div class="max-w-full md:max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-      <div class="flex items-center space-x-2">
-        <svg class="w-8 h-8 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-8V6h2v2h-2zm0 4h2v-2h-2z"/>
-        </svg>
-        <span class="text-lg sm:text-xl font-bold text-gray-800">Sunus EMS <span
-          class="text-xs sm:text-sm font-normal text-gray-500">v1.0 MVP</span></span>
+<div id="app" class="min-h-screen">
+  <header class="glass-card m-4 p-4 sticky top-4 z-50">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+          <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/>
+          </svg>
+        </div>
+        <div>
+          <span class="text-2xl font-bold text-white">Sunus EMS</span>
+          <p class="text-sm text-blue-200">Sistema Inteligente de Gestão Energética</p>
+        </div>
       </div>
-      <!-- Navegação -->
-      <nav class="flex flex-wrap gap-2 sm:gap-4">
-        <button id="nav-dashboard" onclick="changeView('dashboard')"
-                class="nav-button py-2 px-3 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition duration-150">
-          Dashboard
+      
+      <nav class="flex flex-wrap gap-2">
+        <button id="nav-dashboard" onclick="changeView('dashboard')" class="nav-button px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+          📊 Dashboard
         </button>
-        <button id="nav-eletropostos" onclick="changeView('eletropostos')"
-                class="nav-button py-2 px-3 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition duration-150">
-          Eletropostos
+        <button id="nav-eletropostos" onclick="changeView('eletropostos')" class="nav-button px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+          🔌 Eletropostos
         </button>
-        <button id="nav-alertas" onclick="changeView('alertas')"
-                class="nav-button py-2 px-3 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition duration-150">
-          Alertas
+        <button id="nav-financeiro" onclick="changeView('financeiro')" class="nav-button px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+          💰 Receitas
         </button>
-        <button id="nav-paineis" onclick="changeView('paineis')"
-                class="nav-button py-2 px-3 sm:px-4 text-xs sm:text-sm font-medium rounded-lg transition duration-150">
-          Painéis
+        <button id="nav-sustentabilidade" onclick="changeView('sustentabilidade')" class="nav-button px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+          🌱 ESG
+        </button>
+        <button id="nav-alertas" onclick="changeView('alertas')" class="nav-button px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+          ⚠️ Alertas
         </button>
       </nav>
     </div>
   </header>
 
-  <!-- Container Principal de Conteúdo -->
-  <main class="flex-grow p-2 sm:p-4 md:p-6 max-w-full md:max-w-7xl w-full mx-auto">
-    <div id="view-container"></div>
+  <main class="px-4 pb-8">
+    <div id="view-container" class="max-w-7xl mx-auto"></div>
   </main>
 
-  <!-- Rodapé simples -->
-  <footer class="bg-gray-100 p-2 sm:p-4 text-center text-xs text-gray-500">
-    <p>Protótipo MVP desenvolvido por: Sunus | Projeto de Inovação UFMG</p>
+  <footer class="glass-card m-4 p-4 text-center">
+    <div class="flex flex-col md:flex-row justify-between items-center text-white">
+      <p class="text-sm">© 2025 Sunus - Inovação em Gestão Energética | UFMG</p>
+      <div class="flex space-x-4 mt-2 md:mt-0 text-sm">
+        <span>🎯 ODS 7, 9, 13</span>
+        <span>⚡ Energy-as-a-Service</span>
+      </div>
+    </div>
   </footer>
 </div>
 
 <script>
-  const viewContainer = document.getElementById('view-container');
-  let currentView = 'dashboard';
+const viewContainer = document.getElementById('view-container');
+let currentView = 'dashboard';
 
-  // --- Mock Data (Dados Fictícios) ---
-  const mockData = {
-    dashboard: {
-      solarGeneration: 55.4,
-      totalConsumption: 48.1,
-      bessCharge: 75,
-      gridImport: 0.0,
-      gridExport: 0.0,
-      savingsToday: 125.80,
-      co2Avoided: 155.2,
+const mockData = {
+  dashboard: {
+    solarGeneration: 78.4,
+    totalConsumption: 65.2,
+    bessCharge: 85,
+    gridStatus: 'Grid-Zero Ativo',
+    efficiency: 94.8,
+    savingsToday: 245.80,
+    co2Avoided: 125.6,
+    peakShaving: true,
+    curtailmentRisk: 'Baixo',
+    revenue24h: 89.50
+  },
+  eletropostos: [
+    {
+      id: 'EP001',
+      location: 'Área VIP',
+      status: 'Carregando',
+      user: 'Hóspede Premium',
+      vehicle: 'Tesla Model 3',
+      power: 22,
+      duration: '2h 15m',
+      energy: 45.6,
+      revenue: 25.80,
+      tariff: 'R$ 0,65/kWh',
+      completion: 78
     },
-    eletropostos: [
-      {
-        id: 'EP001',
-        status: 'Carregando',
-        user: 'Hóspede A1',
-        time: '1h 45m',
-        power: 22,
-        monetized: 15.75,
-        lastUpdate: 'Agora'
-      },
-      {id: 'EP002', status: 'Disponível', user: '-', time: '-', power: 7.4, monetized: 0.00, lastUpdate: '5 min atrás'},
-      {
-        id: 'EP003',
-        status: 'Ocupado',
-        user: 'Turista XPTO',
-        time: '0h 30m',
-        power: 50,
-        monetized: 8.50,
-        lastUpdate: 'Agora'
-      },
-    ],
-    alerts: [
-      {
-        id: 1,
-        type: 'CRÍTICO',
-        message: 'BESS: Carga da bateria abaixo de 20%. Acionando carregamento prioritário.',
-        timestamp: '26/09/2025 10:30',
-        status: 'Pendente',
-        color: 'bg-red-500'
-      },
-      {
-        id: 2,
-        type: 'INFORMATIVO',
-        message: 'Lógica Grid-Zero ativada: Geração solar limitada para manter exportação zero.',
-        timestamp: '26/09/2025 12:00',
-        status: 'Resolvido',
-        color: 'bg-green-500'
-      },
-      {
-        id: 3,
-        type: 'AVISO',
-        message: 'Eletroposto EP003 Offline há 15 minutos. Verifique a conexão.',
-        timestamp: '26/09/2025 11:45',
-        status: 'Pendente',
-        color: 'bg-yellow-500'
-      },
-    ],
-    panels: [
-      {id: 'PV001', location: 'Cobertura A', status: 'Ativo', lastUpdate: 'Agora'},
-      {id: 'PV002', location: 'Cobertura B', status: 'Manutenção', lastUpdate: '10 min atrás'}
+    {
+      id: 'EP002',
+      location: 'Estacionamento Principal',
+      status: 'Disponível',
+      user: '-',
+      vehicle: '-',
+      power: 7.4,
+      duration: '-',
+      energy: 0,
+      revenue: 0,
+      tariff: 'R$ 0,55/kWh',
+      completion: 0
+    },
+    {
+      id: 'EP003',
+      location: 'Área Executiva',
+      status: 'Reservado',
+      user: 'Sr. Silva (Check-in 14h)',
+      vehicle: 'BYD Tan EV',
+      power: 50,
+      duration: '1h 30m (estimado)',
+      energy: 0,
+      revenue: 0,
+      tariff: 'R$ 0,75/kWh',
+      completion: 0
+    }
+  ],
+  financeiro: {
+    revenueToday: 89.50,
+    revenueWeek: 524.30,
+    revenueMonth: 2156.80,
+    energySavings: 1890.20,
+    peakShavingSavings: 450.60,
+    gridZeroSavings: 320.15,
+    sessions: [
+      {date: '26/09', revenue: 89.50, sessions: 5, efficiency: 94.8},
+      {date: '25/09', revenue: 76.20, sessions: 4, efficiency: 92.1},
+      {date: '24/09', revenue: 105.80, sessions: 7, efficiency: 96.2},
+      {date: '23/09', revenue: 68.40, sessions: 3, efficiency: 91.5},
+      {date: '22/09', revenue: 95.30, sessions: 6, efficiency: 95.1}
     ]
-  };
-
-  // --- Funções de Renderização de Views ---
-
-  function renderDashboard() {
-    const data = mockData.dashboard;
-    viewContainer.innerHTML = `
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4 sm:mb-6">Dashboard de Gestão de Energia (EMS)</h1>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6 sm:mb-8">
-                ${kpiCard('Geração Solar', `${data.solarGeneration} kW`, 'Geração atual do SFV', 'bg-yellow-100 text-yellow-800')}
-                ${kpiCard('Consumo Local', `${data.totalConsumption} kW`, 'Demanda atual do estabelecimento', 'bg-blue-100 text-blue-800')}
-                ${kpiCard('Economia Estimada (Hoje)', `R$ ${data.savingsToday.toFixed(2)}`, 'Em comparação com a rede', 'bg-green-100 text-green-800')}
-                ${kpiCard('Bateria (BESS)', `${data.bessCharge}%`, 'Nível de carga', 'bg-purple-100 text-purple-800')}
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-                <div class="lg:col-span-2 bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-100">
-                    <h2 class="text-lg sm:text-xl font-semibold text-gray-700 mb-2 sm:mb-4 flex items-center">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        Fluxo de Energia em Tempo Real
-                    </h2>
-                    ${energyFlowDiagram(data)}
-                </div>
-                <div class="lg:col-span-1 bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-100">
-                    <h2 class="text-lg sm:text-xl font-semibold text-gray-700 mb-2 sm:mb-4">Otimização (Peak Shaving)</h2>
-                    <p class="text-gray-500 mb-2 sm:mb-4 text-xs sm:text-sm">Estratégia de gerenciamento de pico aplicada.</p>
-                    <div class="h-48 sm:h-64 flex flex-col justify-end p-2 bg-gray-50 rounded-lg">
-                        <div class="text-xs text-gray-400 mb-1">Carga da Bateria vs. Consumo</div>
-                        <div class="flex items-end justify-between h-32 sm:h-48">
-                            <div class="w-1/6 bg-blue-400 h-2/4 rounded-t-sm" title="Consumo"></div>
-                            <div class="w-1/6 bg-purple-400 h-3/4 rounded-t-sm" title="Bateria"></div>
-                            <div class="w-1/6 bg-blue-400 h-1/2 rounded-t-sm" title="Consumo"></div>
-                            <div class="w-1/6 bg-purple-400 h-4/5 rounded-t-sm" title="Bateria"></div>
-                            <div class="w-1/6 bg-blue-400 h-3/5 rounded-t-sm" title="Consumo"></div>
-                        </div>
-                        <div class="flex justify-between mt-2 text-xs text-gray-500">
-                            <span>08h</span>
-                            <span>12h</span>
-                            <span>18h</span>
-                            <span>20h</span>
-                            <span>22h</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
   }
+};
 
-  function kpiCard(title, value, subtitle, classes) {
-    return `
-            <div class="p-3 sm:p-4 bg-white rounded-xl shadow-md border border-gray-100">
-                <div class="text-xs font-semibold uppercase ${classes} inline-block px-2 py-1 rounded-full mb-1 sm:mb-2">${title}</div>
-                <div class="text-2xl sm:text-3xl font-extrabold text-gray-900">${value}</div>
-                <p class="text-xs sm:text-sm text-gray-500 mt-1">${subtitle}</p>
-            </div>
-        `;
-  }
+function renderDashboard() {
+  const data = mockData.dashboard;
+  viewContainer.innerHTML = `
+    <div class="space-y-6">
+      <!-- KPIs Principais -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        ${createKpiCard('⚡ Geração Solar', `${data.solarGeneration.toFixed(2)} kW`, 'Operação otimizada', 'from-yellow-400 to-orange-500')}
+        ${createKpiCard('🏢 Consumo Total', `${data.totalConsumption.toFixed(2)} kW`, 'Demanda controlada', 'from-blue-400 to-blue-600')}
+        ${createKpiCard('🔋 BESS', `${data.bessCharge.toFixed(2)}%`, data.peakShaving ? 'Peak Shaving Ativo' : 'Standby', 'from-purple-400 to-purple-600')}
+        ${createKpiCard('💰 Receita (24h)', `R$ ${data.revenue24h.toFixed(2)}`, 'Monetização ativa', 'from-green-400 to-green-600')}
+      </div>
 
-  function energyFlowDiagram(data) {
-    const gridStatus = data.gridImport > 0 ? 'bg-red-500' : 'bg-green-500';
-    const gridText = data.gridImport > 0 ? 'Importando' : 'Exportação Zero (Grid-Zero Ativo)';
-    const gridArrowClass = data.gridImport > 0 ? 'flow-arrow' : 'flow-arrow reverse';
+      <!-- Fluxo de Energia Aprimorado -->
+      <div class="glass-card p-6">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+          <span class="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">⚡</span>
+          Fluxo Energético Inteligente
+        </h2>
+        ${renderEnergyFlow(data)}
+      </div>
 
-    return `
-            <div class="flex flex-col items-center justify-center p-2 sm:p-4">
-                <div class="flex flex-col items-center">
-                    <svg class="w-12 h-12 sm:w-16 sm:h-16 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zM5.9 5.9A6 6 0 0110 4a6 6 0 014.1 1.9L10 10V4.9L5.9 5.9zm8.2 0L10 10V4.9l4.1 1.9zM10 14.1V10l4.1-1.9A6 6 0 0110 16a6 6 0 01-4.1-1.9L10 10zM5.9 14.1L10 10l-4.1-1.9z"></path></svg>
-                    <span class="font-bold text-base sm:text-lg mt-1">Solar PV</span>
-                    <span class="text-xs sm:text-sm text-gray-500">${data.solarGeneration} kW</span>
-                </div>
-                <svg class="w-1 h-8 sm:h-12 my-1 sm:my-2 text-yellow-500 flow-arrow" viewBox="0 0 1 100" fill="none"><path d="M0.5 0V100" stroke="currentColor" stroke-width="1" stroke-dasharray="5 5"/></svg>
-                <div class="flex items-center space-x-2 sm:space-x-8 w-full justify-center">
-                    <div class="flex flex-col items-center">
-                        <svg class="w-8 h-8 sm:w-12 sm:h-12 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm6 4H7v2h2V9zm4 0h-2v2h2V9z" clip-rule="evenodd"></path></svg>
-                        <span class="font-bold text-xs sm:text-base mt-1">BESS</span>
-                        <span class="text-xs sm:text-sm text-gray-500">${data.bessCharge}%</span>
-                    </div>
-                    <div class="flex-grow flex items-center justify-end">
-                        <svg class="w-8 h-1 sm:w-12 sm:h-1 text-purple-600 flow-arrow reverse" viewBox="0 0 100 1" fill="none"><path d="M100 0.5H0" stroke="currentColor" stroke-width="1" stroke-dasharray="5 5"/></svg>
-                    </div>
-                    <div class="w-16 h-16 sm:w-24 sm:h-24 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-xl">
-                        EMS CORE
-                    </div>
-                    <div class="flex-grow flex items-center justify-start">
-                        <svg class="w-8 h-1 sm:w-12 sm:h-1 text-blue-600 flow-arrow" viewBox="0 0 100 1" fill="none"><path d="M0 0.5H100" stroke="currentColor" stroke-width="1" stroke-dasharray="5 5"/></svg>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <svg class="w-8 h-8 sm:w-12 sm:h-12 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zM6 7a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z"></path></svg>
-                        <span class="font-bold text-xs sm:text-base mt-1">Consumo</span>
-                        <span class="text-xs sm:text-sm text-gray-500">${data.totalConsumption} kW</span>
-                    </div>
-                </div>
-                <div class="flex flex-col sm:flex-row justify-around w-full mt-2 sm:mt-4 gap-2 sm:gap-0">
-                    <div class="flex flex-col items-center w-full sm:w-1/2">
-                        <svg class="w-1 h-8 sm:h-12 my-1 sm:my-2 text-gray-400 ${gridArrowClass}" viewBox="0 0 1 100" fill="none"><path d="M0.5 0V100" stroke="currentColor" stroke-width="1" stroke-dasharray="5 5"/></svg>
-                        <div class="flex flex-col items-center">
-                            <svg class="w-8 h-8 sm:w-12 sm:h-12 text-gray-600" fill="currentColor" viewBox="0 0 20 20"><path d="M17 12h-5l1.5-4H18l-1.5 4zM3 12h5l-1.5-4H2l1.5 4zM10 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1z"></path></svg>
-                            <div class="font-bold text-xs sm:text-base mt-1">Rede Elétrica</div>
-                            <div class="text-xs sm:text-sm text-white px-2 py-0.5 rounded ${gridStatus}">${gridText}</div>
-                            <span class="text-xs text-gray-500">${data.gridImport} kW</span>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-center w-full sm:w-1/2">
-                        <svg class="w-1 h-8 sm:h-12 my-1 sm:my-2 text-green-600 flow-arrow" viewBox="0 0 1 100" fill="none"><path d="M0.5 0V100" stroke="currentColor" stroke-width="1" stroke-dasharray="5 5"/></svg>
-                        <div class="flex flex-col items-center">
-                            <svg class="w-8 h-8 sm:w-12 sm:h-12 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path d="M12 2a2 2 0 00-2 2v.5a.5.5 0 001 0V4a1 1 0 012 0v.5a.5.5 0 001 0V4a2 2 0 00-2-2zM9 7a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1zM5 10a2 2 0 00-2 2v3a2 2 0 002 2h10a2 2 0 002-2v-3a2 2 0 00-2-2H5zm0 1h10a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3a1 1 0 011-1z"></path></svg>
-                            <span class="font-bold text-xs sm:text-base mt-1">Eletropostos</span>
-                            <span class="text-xs sm:text-sm text-gray-500">3/3 OPs</span>
-                        </div>
-                    </div>
-                </div>
+      <!-- Grid de Informações -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Eficiência Operacional -->
+        <div class="glass-card p-6">
+          <h3 class="text-lg font-semibold text-white mb-4">🎯 Eficiência do Sistema</h3>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-blue-200">Eficiência Geral</span>
+              <span class="text-2xl font-bold text-white">${data.efficiency}%</span>
             </div>
-        `;
-  }
-
-  function renderEletropostos() {
-    const chargers = mockData.eletropostos;
-    viewContainer.innerHTML = `
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4 sm:mb-6">Gestão de Eletropostos (Monetização)</h1>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-                ${chargers.map(charger => renderChargerCard(charger)).join('')}
+            ${createProgressBar(data.efficiency, 'from-green-400 to-emerald-500')}
+            <div class="grid grid-cols-2 gap-4 mt-4">
+              <div class="text-center">
+                <p class="text-blue-200 text-sm">Curtailment Risk</p>
+                <p class="text-green-400 font-bold">${data.curtailmentRisk}</p>
+              </div>
+              <div class="text-center">
+                <p class="text-blue-200 text-sm">Status Grid</p>
+                <p class="text-green-400 font-bold">${data.gridStatus}</p>
+              </div>
             </div>
-            <div class="bg-white p-3 sm:p-6 rounded-xl shadow-lg border border-gray-100">
-                <h2 class="text-lg sm:text-xl font-semibold text-gray-700 mb-2 sm:mb-4">Relatório de Sessões de Recarga (Últimas 24h)</h2>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <th class="py-2 sm:py-3 px-2 sm:px-4">ID</th>
-                                <th class="py-2 sm:py-3 px-2 sm:px-4">Status</th>
-                                <th class="py-2 sm:py-3 px-2 sm:px-4">Usuário</th>
-                                <th class="py-2 sm:py-3 px-2 sm:px-4">Duração</th>
-                                <th class="py-2 sm:py-3 px-2 sm:px-4">Potência (kW)</th>
-                                <th class="py-2 sm:py-3 px-2 sm:px-4">Valor R$ (Monetização)</th>
-                                <th class="py-2 sm:py-3 px-2 sm:px-4">Atualização</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200 text-xs sm:text-sm">
-                            ${chargers.map(session => renderSessionRow(session)).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-  }
-
-  function renderPaineis() {
-    const panels = mockData.panels;
-    viewContainer.innerHTML = `
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4 sm:mb-6">Cadastro e Monitoramento de Painéis Solares</h1>
-        <form id="panel-form" class="bg-white p-4 rounded-xl shadow-md border border-gray-100 mb-6 flex flex-col sm:flex-row gap-2 sm:gap-4 items-end">
-            <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">ID do Dispositivo</label>
-                <input type="text" id="panel-id" required class="border rounded px-2 py-1 text-sm w-full" placeholder="Ex: PV003">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Localização</label>
-                <input type="text" id="panel-location" required class="border rounded px-2 py-1 text-sm w-full" placeholder="Ex: Cobertura C">
-            </div>
-            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded font-bold text-sm">Cadastrar</button>
-        </form>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead>
-                    <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <th class="py-2 px-4">ID</th>
-                        <th class="py-2 px-4">Localização</th>
-                        <th class="py-2 px-4">Status</th>
-                        <th class="py-2 px-4">Última Atualização</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200 text-xs sm:text-sm">
-                    ${panels.map(panel => `
-                        <tr>
-                            <td class="py-2 px-4 font-medium">${panel.id}</td>
-                            <td class="py-2 px-4">${panel.location}</td>
-                            <td class="py-2 px-4">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${panel.status === 'Ativo' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
-                                    ${panel.status}
-                                </span>
-                            </td>
-                            <td class="py-2 px-4 text-xs text-gray-400">${panel.lastUpdate}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+          </div>
         </div>
-    `;
 
-    // Form handler
-    document.getElementById('panel-form').onsubmit = function (e) {
-      e.preventDefault();
-      const id = document.getElementById('panel-id').value.trim();
-      const location = document.getElementById('panel-location').value.trim();
-      if (id && location) {
-        mockData.panels.push({
-          id,
-          location,
-          status: 'Ativo',
-          lastUpdate: 'Agora'
-        });
-        renderPaineis();
-      }
-    };
-  }
+        <!-- Impacto Ambiental -->
+        <div class="glass-card p-6">
+          <h3 class="text-lg font-semibold text-white mb-4">🌱 Impacto ESG</h3>
+          <div class="space-y-4">
+            <div>
+              <p class="text-blue-200 text-sm">CO₂ Evitado (Hoje)</p>
+              <p class="text-3xl font-bold text-green-400">${data.co2Avoided} kg</p>
+            </div>
+            <div>
+              <p class="text-blue-200 text-sm">Economia Total</p>
+              <p class="text-2xl font-bold text-white">R$ ${data.savingsToday}</p>
+            </div>
+            <div class="flex items-center space-x-2 mt-4">
+              <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+              <span class="text-green-400 text-sm">Metas ODS 7, 9, 13 atendidas</span>
+            </div>
+          </div>
+        </div>
 
-  function renderChargerCard(charger) {
-    let statusClass, iconPath;
-    switch (charger.status) {
-      case 'Carregando':
-        statusClass = 'bg-green-500';
-        iconPath = 'M13 10V3L4 14h7v7l9-11h-7z';
-        break;
-      case 'Disponível':
-        statusClass = 'bg-indigo-500';
-        iconPath = 'M9 2a1 1 0 00-1 1v.5a.5.5 0 001 0V3h2v.5a.5.5 0 001 0V3a1 1 0 00-1-1H9zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm0 4a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z';
-        break;
-      case 'Ocupado':
-        statusClass = 'bg-yellow-500';
-        iconPath = 'M10 2a8 8 0 100 16A8 8 0 0010 2zm1 13h-2v-2h2v2zm0-4h-2V7h2v4z';
-        break;
-      default:
-        statusClass = 'bg-gray-500';
-        iconPath = 'M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z';
-    }
-
-    return `
-            <div class="bg-white p-4 sm:p-5 rounded-xl shadow-lg border border-gray-100 flex items-center justify-between">
+        <!-- Status Eletropostos -->
+        <div class="glass-card p-6">
+          <h3 class="text-lg font-semibold text-white mb-4">🔌 Eletropostos</h3>
+          <div class="space-y-3">
+            ${mockData.eletropostos.map(ep => `
+              <div class="flex justify-between items-center p-3 rounded-lg bg-black bg-opacity-20">
                 <div>
-                    <div class="text-lg sm:text-xl font-semibold text-gray-800 mb-1">${charger.id} (${charger.power}kW)</div>
-                    <div class="text-lg sm:text-3xl font-bold ${statusClass} inline-block px-2 sm:px-3 py-1 text-white rounded-lg">${charger.status}</div>
-                    <p class="text-xs sm:text-sm text-gray-500 mt-2">Duração: ${charger.time} | Receita: R$ ${charger.monetized.toFixed(2)}</p>
+                  <p class="text-white font-medium">${ep.id}</p>
+                  <p class="text-blue-200 text-sm">${ep.status}</p>
                 </div>
-                <div class="ml-2 sm:ml-4 p-2 sm:p-3 rounded-full ${statusClass} bg-opacity-10">
-                    <svg class="w-6 h-6 sm:w-8 sm:h-8 ${statusClass.replace('bg-', 'text-')}" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="${iconPath}" clip-rule="evenodd"></path>
-                    </svg>
+                <div class="text-right">
+                  <p class="text-green-400 font-bold">R$ ${ep.revenue.toFixed(2)}</p>
+                  ${ep.power > 0 ? `<p class="text-blue-200 text-sm">${ep.power}kW</p>` : ''}
                 </div>
-            </div>
-        `;
-  }
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
-  function renderSessionRow(session) {
-    return `
-            <tr>
-                <td class="py-2 sm:py-3 px-2 sm:px-4 font-medium">${session.id}</td>
-                <td class="py-2 sm:py-3 px-2 sm:px-4">
-                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${session.status === 'Carregando' ? 'bg-green-100 text-green-800' : session.status === 'Ocupado' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}">
-                        ${session.status}
-                    </span>
-                </td>
-                <td class="py-2 sm:py-3 px-2 sm:px-4 text-gray-600">${session.user}</td>
-                <td class="py-2 sm:py-3 px-2 sm:px-4">${session.time}</td>
-                <td class="py-2 sm:py-3 px-2 sm:px-4">${session.power} kW</td>
-                <td class="py-2 sm:py-3 px-2 sm:px-4 font-bold text-green-700">R$ ${session.monetized.toFixed(2)}</td>
-                <td class="py-2 sm:py-3 px-2 sm:px-4 text-xs text-gray-400">${session.lastUpdate}</td>
-            </tr>
-        `;
-  }
+function renderEletropostos() {
+  const eletropostos = mockData.eletropostos;
+  viewContainer.innerHTML = `
+    <div class="space-y-6">
+      <div class="glass-card p-6">
+        <h1 class="text-3xl font-bold text-white mb-2">🔌 Gestão de Eletropostos</h1>
+        <p class="text-blue-200">Monetização inteligente com tarifação dinâmica</p>
+      </div>
 
-  function renderAlertas() {
-    const alerts = mockData.alerts;
-    viewContainer.innerHTML = `
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4 sm:mb-6">Alertas e Notificações (Manutenção Preditiva)</h1>
-            <div class="p-3 sm:p-4 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 rounded-lg shadow-md mb-6 sm:mb-8">
-                <p class="font-bold">Atenção!</p>
-                <p class="text-xs sm:text-sm">Existem ${alerts.filter(a => a.status === 'Pendente').length} alertas em aberto. Otimização e estabilidade da rede podem estar comprometidas.</p>
-            </div>
-            <div class="space-y-2 sm:space-y-4">
-                ${alerts.map(alert => renderAlertRow(alert)).join('')}
-            </div>
-        `;
-  }
+      <!-- Cards de Eletropostos -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        ${eletropostos.map(ep => createEletropostoCard(ep)).join('')}
+      </div>
 
-  function renderAlertRow(alert) {
-    return `
-            <div class="bg-white p-3 sm:p-4 rounded-xl shadow-lg flex items-start space-x-2 sm:space-x-4 hover:shadow-xl transition duration-150 border border-gray-100">
-                <div class="flex-shrink-0 w-2 h-2 sm:w-3 sm:h-3 mt-1 rounded-full ${alert.color}"></div>
-                <div class="flex-grow">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                        <span class="font-bold text-xs sm:text-sm text-gray-800">${alert.type} - ${alert.message}</span>
-                        <span class="text-xs text-gray-400 mt-1 sm:mt-0">${alert.timestamp}</span>
+      <!-- Tabela Detalhada -->
+      <div class="glass-card p-6">
+        <h2 class="text-xl font-semibold text-white mb-4">📊 Relatório de Sessões</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-white border-opacity-20">
+                <th class="text-left text-blue-200 py-3">Eletroposto</th>
+                <th class="text-left text-blue-200 py-3">Veículo</th>
+                <th class="text-left text-blue-200 py-3">Status</th>
+                <th class="text-left text-blue-200 py-3">Energia</th>
+                <th class="text-left text-blue-200 py-3">Receita</th>
+                <th class="text-left text-blue-200 py-3">Tarifa</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${eletropostos.map(ep => `
+                <tr class="border-b border-white border-opacity-10">
+                  <td class="py-3">
+                    <div>
+                      <p class="text-white font-medium">${ep.id}</p>
+                      <p class="text-blue-200 text-sm">${ep.location}</p>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">Status: <span class="font-medium ${alert.status === 'Pendente' ? 'text-red-600' : 'text-green-600'}">${alert.status}</span></p>
+                  </td>
+                  <td class="py-3">
+                    <div>
+                      <p class="text-white">${ep.vehicle}</p>
+                      <p class="text-blue-200 text-sm">${ep.user}</p>
+                    </div>
+                  </td>
+                  <td class="py-3">
+                    <span class="px-3 py-1 rounded-full text-sm ${getStatusColor(ep.status)}">
+                      ${ep.status}
+                    </span>
+                  </td>
+                  <td class="py-3">
+                    <div>
+                      <p class="text-white">${ep.energy} kWh</p>
+                      <p class="text-blue-200 text-sm">${ep.duration}</p>
+                    </div>
+                  </td>
+                  <td class="py-3">
+                    <p class="text-green-400 font-bold text-lg">R$ ${ep.revenue.toFixed(2)}</p>
+                  </td>
+                  <td class="py-3">
+                    <p class="text-blue-200">${ep.tariff}</p>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFinanceiro() {
+  const data = mockData.financeiro;
+  viewContainer.innerHTML = `
+    <div class="space-y-6">
+      <div class="glass-card p-6">
+        <h1 class="text-3xl font-bold text-white mb-2">💰 Centro de Receitas</h1>
+        <p class="text-blue-200">Monetização e economia através do modelo Energy-as-a-Service</p>
+      </div>
+
+      <!-- KPIs Financeiros -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        ${createKpiCard('📅 Hoje', `R$ ${data.revenueToday}`, 'Receita eletropostos', 'from-green-400 to-emerald-500')}
+        ${createKpiCard('📈 Semana', `R$ ${data.revenueWeek}`, 'Últimos 7 dias', 'from-blue-400 to-blue-600')}
+        ${createKpiCard('📊 Mês', `R$ ${data.revenueMonth}`, 'Setembro 2025', 'from-purple-400 to-purple-600')}
+        ${createKpiCard('⚡ Peak Shaving', `R$ ${data.peakShavingSavings}`, 'Economia mês', 'from-yellow-400 to-orange-500')}
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Gráfico de Receitas -->
+        <div class="glass-card p-6">
+          <h2 class="text-xl font-semibold text-white mb-4">📈 Receitas dos Últimos Dias</h2>
+          <div class="space-y-4">
+            ${data.sessions.map(session => `
+              <div class="flex justify-between items-center p-3 rounded-lg bg-black bg-opacity-20">
+                <div class="flex items-center space-x-3">
+                  <div class="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-500 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold">${session.sessions}</span>
+                  </div>
+                  <div>
+                    <p class="text-white font-medium">${session.date}</p>
+                    <p class="text-blue-200 text-sm">Eficiência: ${session.efficiency}%</p>
+                  </div>
                 </div>
+                <div class="text-right">
+                  <p class="text-2xl font-bold text-green-400">R$ ${session.revenue}</p>
+                  <p class="text-blue-200 text-sm">${session.sessions} sessões</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Breakdown de Economia -->
+        <div class="glass-card p-6">
+          <h2 class="text-xl font-semibold text-white mb-4">💡 Economia Inteligente</h2>
+          <div class="space-y-6">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-blue-200">Peak Shaving (BESS)</span>
+                <span class="text-green-400 font-bold">R$ ${data.peakShavingSavings}</span>
+              </div>
+              <div class="w-full bg-black bg-opacity-30 rounded-full h-3">
+                <div class="bg-gradient-to-r from-green-400 to-emerald-500 h-3 rounded-full" style="width: 75%"></div>
+              </div>
+              <p class="text-blue-200 text-sm mt-1">Redução de 35% nos picos de demanda</p>
             </div>
-        `;
-  }
 
-  // --- Lógica de Navegação ---
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-blue-200">Grid-Zero</span>
+                <span class="text-green-400 font-bold">R$ ${data.gridZeroSavings}</span>
+              </div>
+              <div class="w-full bg-black bg-opacity-30 rounded-full h-3">
+                <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-3 rounded-full" style="width: 60%"></div>
+              </div>
+              <p class="text-blue-200 text-sm mt-1">Zero exportação para rede</p>
+            </div>
 
-  function updateNavButtons(activeView) {
-    document.querySelectorAll('.nav-button').forEach(button => {
-      if (button.id === `nav-${activeView}`) {
-        button.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
-        button.classList.remove('bg-transparent', 'text-gray-600', 'hover:bg-gray-100');
-      } else {
-        button.classList.add('bg-transparent', 'text-gray-600', 'hover:bg-gray-100');
-        button.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
-      }
-    });
-  }
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-blue-200">Economia Energética Total</span>
+                <span class="text-green-400 font-bold">R$ ${data.energySavings}</span>
+              </div>
+              <div class="w-full bg-black bg-opacity-30 rounded-full h-3">
+                <div class="bg-gradient-to-r from-purple-400 to-purple-600 h-3 rounded-full" style="width: 90%"></div>
+              </div>
+              <p class="text-blue-200 text-sm mt-1">vs. solução convencional</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
-  function changeView(view) {
-    currentView = view;
-    updateNavButtons(view);
-    switch (view) {
-      case 'dashboard':
-        renderDashboard();
-        break;
-      case 'eletropostos':
-        renderEletropostos();
-        break;
-      case 'alertas':
-        renderAlertas();
-        break;
-      case 'paineis':
-        renderPaineis();
-        break;
+function renderSustentabilidade() {
+  viewContainer.innerHTML = `
+    <div class="space-y-6">
+      <div class="glass-card p-6">
+        <h1 class="text-3xl font-bold text-white mb-2">🌱 Impacto ESG</h1>
+        <p class="text-blue-200">Alinhamento com os Objetivos de Desenvolvimento Sustentável da ONU</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- ODS 7 - Energia Limpa -->
+        <div class="glass-card p-6">
+          <div class="text-center mb-4">
+            <div class="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-3">
+              <span class="text-2xl">⚡</span>
+            </div>
+            <h3 class="text-xl font-bold text-white">ODS 7</h3>
+            <p class="text-blue-200 text-sm">Energia Limpa e Acessível</p>
+          </div>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-blue-200">Energia Solar Gerada</span>
+              <span class="text-white font-bold">1,245 kWh</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-200">Eficiência Energética</span>
+              <span class="text-green-400 font-bold">94.8%</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-200">Autonomia da Rede</span>
+              <span class="text-green-400 font-bold">87%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ODS 9 - Inovação -->
+        <div class="glass-card p-6">
+          <div class="text-center mb-4">
+            <div class="w-16 h-16 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
+              <span class="text-2xl">🏗️</span>
+            </div>
+            <h3 class="text-xl font-bold text-white">ODS 9</h3>
+            <p class="text-blue-200 text-sm">Inovação e Infraestrutura</p>
+          </div>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-blue-200">Tecnologia IoT</span>
+              <span class="text-green-400 font-bold">✓ Ativa</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-200">IA Preditiva</span>
+              <span class="text-green-400 font-bold">✓ Operando</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-200">Smart Grid</span>
+              <span class="text-green-400 font-bold">✓ Integrado</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ODS 13 - Clima -->
+        <div class="glass-card p-6">
+          <div class="text-center mb-4">
+            <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3">
+              <span class="text-2xl">🌍</span>
+            </div>
+            <h3 class="text-xl font-bold text-white">ODS 13</h3>
+            <p class="text-blue-200 text-sm">Ação Contra Mudança Climática</p>
+          </div>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-blue-200">CO₂ Evitado (Mês)</span>
+              <span class="text-green-400 font-bold">3.8 ton</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-200">Árvores Equivalentes</span>
+              <span class="text-green-400 font-bold">172</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-blue-200">Pegada de Carbono</span>
+              <span class="text-green-400 font-bold">-65%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certificações e Relatórios -->
+      <div class="glass-card p-6">
+        <h2 class="text-xl font-semibold text-white mb-4">📜 Certificações e Relatórios ESG</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <h3 class="text-lg font-medium text-white">🏆 Conquistas</h3>
+            <div class="space-y-2">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">✓</div>
+                <span class="text-blue-200">Certificação ISO 14001 (Ambiental)</span>
+              </div>
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">✓</div>
+                <span class="text-blue-200">Membro do Pacto Global da ONU</span>
+              </div>
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">⏳</div>
+                <span class="text-blue-200">Auditoria Carbono Neutro (em andamento)</span>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <h3 class="text-lg font-medium text-white">📈 Métricas de Impacto</h3>
+            <div class="bg-black bg-opacity-20 rounded-lg p-4 space-y-2">
+              <div class="flex justify-between">
+                <span class="text-blue-200">Redução de Emissões</span>
+                <span class="text-green-400 font-bold">65%</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-blue-200">Energia Renovável</span>
+                <span class="text-green-400 font-bold">87%</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-blue-200">Eficiência Operacional</span>
+                <span class="text-green-400 font-bold">+42%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAlertas() {
+  const alerts = [
+    {
+      id: 1,
+      type: 'CRÍTICO',
+      title: 'Risco de Curtailment Detectado',
+      message: 'Excesso de geração solar previsto para 14h-16h. BESS será carregado preventivamente.',
+      timestamp: '26/09/2025 10:30',
+      status: 'Ação Automática',
+      priority: 'high',
+      category: 'Grid Management',
+      action: 'Carregamento BESS programado',
+      impact: 'Evita perda de R$ 45,20 em curtailment'
+    },
+    {
+      id: 2,
+      type: 'OPORTUNIDADE',
+      title: 'Peak Shaving Otimizado',
+      message: 'Pico de demanda previsto às 19h. Sistema preparado para descarga do BESS.',
+      timestamp: '26/09/2025 12:00',
+      status: 'Programado',
+      priority: 'medium',
+      category: 'Peak Management',
+      action: 'Descarga automática às 18:45h',
+      impact: 'Economia estimada: R$ 78,90'
+    },
+    {
+      id: 3,
+      type: 'MANUTENÇÃO',
+      title: 'Eletroposto EP003 - Manutenção Preditiva',
+      message: 'Temperatura do conector acima do normal. Agendar inspeção preventiva.',
+      timestamp: '26/09/2025 11:45',
+      status: 'Pendente',
+      priority: 'medium',
+      category: 'Predictive Maintenance',
+      action: 'Inspeção técnica recomendada',
+      impact: 'Previne indisponibilidade'
+    },
+    {
+      id: 4,
+      type: 'RECEITA',
+      title: 'Meta de Receita Alcançada',
+      message: 'Receita diária de R$ 85,00 atingida. Projeção mensal: 15% acima do target.',
+      timestamp: '26/09/2025 15:20',
+      status: 'Concluído',
+      priority: 'low',
+      category: 'Revenue',
+      action: 'Monitoramento contínuo',
+      impact: 'ROI mensal: +15%'
     }
-  }
+  ];
 
-  window.onload = () => {
-    changeView(currentView);
+  viewContainer.innerHTML = `
+    <div class="space-y-6">
+      <div class="glass-card p-6">
+        <h1 class="text-3xl font-bold text-white mb-2">⚠️ Centro de Inteligência Operacional</h1>
+        <p class="text-blue-200">Manutenção preditiva e otimização automática baseada em IA</p>
+      </div>
+
+      <!-- Dashboard de Status -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        ${createStatusCard('🔴 Críticos', '1', 'Requer atenção', 'from-red-500 to-red-600')}
+        ${createStatusCard('🟡 Avisos', '2', 'Monitoramento', 'from-yellow-500 to-orange-500')}
+        ${createStatusCard('🟢 Oportunidades', '1', 'Otimizações', 'from-green-500 to-emerald-500')}
+        ${createStatusCard('⚡ IA Ativa', '24/7', 'Predições online', 'from-blue-500 to-purple-500')}
+      </div>
+
+      <!-- Lista de Alertas -->
+      <div class="space-y-4">
+        ${alerts.map(alert => createAlertCard(alert)).join('')}
+      </div>
+
+      <!-- Painel de IA Preditiva -->
+      <div class="glass-card p-6">
+        <h2 class="text-xl font-semibold text-white mb-4">🧠 Inteligência Artificial Preditiva</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>
+            <h3 class="text-lg font-medium text-white mb-3">📊 Análise de Padrões</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center p-3 rounded-lg bg-black bg-opacity-20">
+                <span class="text-blue-200">Previsão de Demanda</span>
+                <span class="text-green-400 font-bold">96.2% precisão</span>
+              </div>
+              <div class="flex justify-between items-center p-3 rounded-lg bg-black bg-opacity-20">
+                <span class="text-blue-200">Otimização BESS</span>
+                <span class="text-green-400 font-bold">15 ciclos/dia</span>
+              </div>
+              <div class="flex justify-between items-center p-3 rounded-lg bg-black bg-opacity-20">
+                <span class="text-blue-200">Economia Preditiva</span>
+                <span class="text-green-400 font-bold">R$ 1,247/mês</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-medium text-white mb-3">🎯 Próximas Ações</h3>
+            <div class="space-y-2">
+              <div class="flex items-center space-x-3 p-2">
+                <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span class="text-blue-200 text-sm">18:45h - Descarga BESS para peak shaving</span>
+              </div>
+              <div class="flex items-center space-x-3 p-2">
+                <div class="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                <span class="text-blue-200 text-sm">19:30h - Carregamento programado EP001</span>
+              </div>
+              <div class="flex items-center space-x-3 p-2">
+                <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
+                <span class="text-blue-200 text-sm">21:00h - Modo Grid-Zero ativado</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Funções de Utilidade
+function createKpiCard(title, value, subtitle, gradient) {
+  return `
+    <div class="metric-card p-6 rounded-2xl border border-white border-opacity-20">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-white font-semibold text-sm">${title}</h3>
+        <div class="w-8 h-8 bg-gradient-to-r ${gradient} rounded-lg opacity-80"></div>
+      </div>
+      <div class="text-3xl font-bold text-white mb-2">${value}</div>
+      <p class="text-blue-200 text-sm">${subtitle}</p>
+    </div>
+  `;
+}
+
+function createStatusCard(title, value, subtitle, gradient) {
+  return `
+    <div class="glass-card p-4 text-center">
+      <div class="w-12 h-12 bg-gradient-to-r ${gradient} rounded-full flex items-center justify-center mx-auto mb-3">
+        <span class="text-white font-bold">${value}</span>
+      </div>
+      <h3 class="text-white font-semibold">${title}</h3>
+      <p class="text-blue-200 text-sm">${subtitle}</p>
+    </div>
+  `;
+}
+
+function createAlertCard(alert) {
+  const priorityColors = {
+    high: 'from-red-500 to-red-600',
+    medium: 'from-yellow-500 to-orange-500',
+    low: 'from-green-500 to-emerald-500'
   };
+
+  const typeIcons = {
+    'CRÍTICO': '🚨',
+    'OPORTUNIDADE': '💡',
+    'MANUTENÇÃO': '🔧',
+    'RECEITA': '💰'
+  };
+
+  return `
+    <div class="glass-card p-6 hover:scale-105 transition-all duration-300">
+      <div class="flex items-start justify-between mb-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 bg-gradient-to-r ${priorityColors[alert.priority]} rounded-full flex items-center justify-center">
+            <span class="text-2xl">${typeIcons[alert.type]}</span>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-white">${alert.title}</h3>
+            <p class="text-blue-200 text-sm">${alert.category}</p>
+          </div>
+        </div>
+        <span class="px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${priorityColors[alert.priority]} text-white">
+          ${alert.type}
+        </span>
+      </div>
+      
+      <p class="text-blue-200 mb-4">${alert.message}</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <p class="text-blue-200 text-sm">Ação Recomendada:</p>
+          <p class="text-white font-medium">${alert.action}</p>
+        </div>
+        <div>
+          <p class="text-blue-200 text-sm">Impacto:</p>
+          <p class="text-green-400 font-medium">${alert.impact}</p>
+        </div>
+      </div>
+      
+      <div class="flex justify-between items-center text-sm">
+        <span class="text-blue-300">${alert.timestamp}</span>
+        <span class="px-2 py-1 rounded-full text-xs ${alert.status === 'Pendente' ? 'bg-yellow-500 bg-opacity-20 text-yellow-400' : 'bg-green-500 bg-opacity-20 text-green-400'}">
+          ${alert.status}
+        </span>
+      </div>
+    </div>
+  `;
+}
+
+function createEletropostoCard(ep) {
+  const statusColors = {
+    'Carregando': 'from-green-500 to-emerald-500',
+    'Disponível': 'from-blue-500 to-blue-600',
+    'Reservado': 'from-yellow-500 to-orange-500',
+    'Offline': 'from-red-500 to-red-600'
+  };
+
+  return `
+    <div class="glass-card p-6 hover:scale-105 transition-all duration-300">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-bold text-white">${ep.id}</h3>
+        <div class="w-12 h-12 bg-gradient-to-r ${statusColors[ep.status]} rounded-full flex items-center justify-center">
+          <span class="text-white font-bold">${ep.power}</span>
+        </div>
+      </div>
+      
+      <div class="space-y-3 mb-4">
+        <div class="flex justify-between">
+          <span class="text-blue-200">Localização</span>
+          <span class="text-white">${ep.location}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-blue-200">Status</span>
+          <span class="px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${statusColors[ep.status]} text-white">
+            ${ep.status}
+          </span>
+        </div>
+        ${ep.vehicle !== '-' ? `
+        <div class="flex justify-between">
+          <span class="text-blue-200">Veículo</span>
+          <span class="text-white">${ep.vehicle}</span>
+        </div>
+        ` : ''}
+        <div class="flex justify-between">
+          <span class="text-blue-200">Duração</span>
+          <span class="text-white">${ep.duration}</span>
+        </div>
+      </div>
+      
+      ${ep.completion > 0 ? `
+      <div class="mb-4">
+        <div class="flex justify-between text-sm mb-2">
+          <span class="text-blue-200">Progresso</span>
+          <span class="text-white">${ep.completion}%</span>
+        </div>
+        <div class="w-full bg-black bg-opacity-30 rounded-full h-2">
+          <div class="bg-gradient-to-r ${statusColors[ep.status]} h-2 rounded-full charging-animation" style="width: ${ep.completion}%"></div>
+        </div>
+      </div>
+      ` : ''}
+      
+      <div class="flex justify-between items-center">
+        <div>
+          <p class="text-blue-200 text-sm">Receita</p>
+          <p class="text-2xl font-bold text-green-400">R$ ${ep.revenue.toFixed(2)}</p>
+        </div>
+        <div class="text-right">
+          <p class="text-blue-200 text-sm">Tarifa</p>
+          <p class="text-white font-medium">${ep.tariff}</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function createProgressBar(percentage, gradient) {
+  return `
+    <div class="w-full bg-black bg-opacity-30 rounded-full h-3">
+      <div class="bg-gradient-to-r ${gradient} h-3 rounded-full energy-flow" style="width: ${percentage}%"></div>
+    </div>
+  `;
+}
+
+function renderEnergyFlow(data) {
+  return `
+    <div class="flex flex-col items-center space-y-8">
+      <!-- Linha Superior: Solar -->
+      <div class="flex flex-col items-center">
+        <div class="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center energy-flow shadow-lg">
+          <span class="text-2xl">☀️</span>
+        </div>
+        <p class="text-white font-bold mt-2">Solar PV</p>
+        <p class="text-blue-200 text-sm">${data.solarGeneration} kW</p>
+        <div class="w-1 h-12 bg-gradient-to-b from-yellow-400 to-transparent mt-2 energy-flow"></div>
+      </div>
+
+      <!-- Centro: EMS Core -->
+      <div class="flex items-center space-x-12">
+        <!-- BESS -->
+        <div class="flex flex-col items-center">
+          <div class="w-14 h-14 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center energy-flow shadow-lg">
+            <span class="text-xl">🔋</span>
+          </div>
+          <p class="text-white font-bold mt-2">BESS</p>
+          <p class="text-purple-300 text-sm">${data.bessCharge}%</p>
+          <div class="h-1 w-12 bg-gradient-to-r from-purple-400 to-transparent mt-2 energy-flow"></div>
+        </div>
+
+        <!-- EMS Core -->
+        <div class="relative">
+          <div class="w-24 h-24 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center shadow-2xl energy-flow">
+            <div class="text-center">
+              <p class="text-white font-bold text-sm">EMS</p>
+              <p class="text-blue-200 text-xs">CORE</p>
+            </div>
+          </div>
+          <div class="absolute -top-2 -right-2 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center animate-pulse">
+            <div class="w-2 h-2 bg-white rounded-full"></div>
+          </div>
+        </div>
+
+        <!-- Eletropostos -->
+        <div class="flex flex-col items-center">
+          <div class="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center energy-flow shadow-lg">
+            <span class="text-xl">🔌</span>
+          </div>
+          <p class="text-white font-bold mt-2">Eletropostos</p>
+          <p class="text-green-300 text-sm">2/3 Ativos</p>
+          <div class="h-1 w-12 bg-gradient-to-l from-green-400 to-transparent mt-2 energy-flow"></div>
+        </div>
+      </div>
+
+      <!-- Linha Inferior: Grid e Consumo -->
+      <div class="flex items-center space-x-16">
+        <div class="flex flex-col items-center">
+          <div class="w-1 h-12 bg-gradient-to-t from-gray-400 to-transparent mb-2 energy-flow"></div>
+          <div class="w-14 h-14 bg-gradient-to-r from-gray-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg">
+            <span class="text-xl">⚡</span>
+          </div>
+          <p class="text-white font-bold mt-2">Rede</p>
+          <p class="text-green-300 text-sm">${data.gridStatus}</p>
+        </div>
+
+        <div class="flex flex-col items-center">
+          <div class="w-1 h-12 bg-gradient-to-t from-blue-400 to-transparent mb-2 energy-flow"></div>
+          <div class="w-14 h-14 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+            <span class="text-xl">🏢</span>
+          </div>
+          <p class="text-white font-bold mt-2">Consumo</p>
+          <p class="text-blue-300 text-sm">${data.totalConsumption} kW</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function getStatusColor(status) {
+  switch (status) {
+    case 'Carregando': return 'bg-green-500 bg-opacity-20 text-green-400';
+    case 'Disponível': return 'bg-blue-500 bg-opacity-20 text-blue-400';
+    case 'Reservado': return 'bg-yellow-500 bg-opacity-20 text-yellow-400';
+    case 'Ocupado': return 'bg-orange-500 bg-opacity-20 text-orange-400';
+    default: return 'bg-gray-500 bg-opacity-20 text-gray-400';
+  }
+}
+
+function updateNavButtons(activeView) {
+  document.querySelectorAll('.nav-button').forEach(button => {
+    if (button.id === `nav-${activeView}`) {
+      button.classList.add('nav-active');
+      button.classList.remove('text-blue-200', 'hover:bg-white', 'hover:bg-opacity-10');
+    } else {
+      button.classList.remove('nav-active');
+      button.classList.add('text-blue-200', 'hover:bg-white', 'hover:bg-opacity-10');
+    }
+  });
+}
+
+function changeView(view) {
+  currentView = view;
+  updateNavButtons(view);
+  
+  switch (view) {
+    case 'dashboard':
+      renderDashboard();
+      break;
+    case 'eletropostos':
+      renderEletropostos();
+      break;
+    case 'financeiro':
+      renderFinanceiro();
+      break;
+    case 'sustentabilidade':
+      renderSustentabilidade();
+      break;
+    case 'alertas':
+      renderAlertas();
+      break;
+  }
+}
+
+window.onload = () => {
+  changeView('dashboard');
+  
+  // Simular atualizações em tempo real
+  setInterval(() => {
+    if (currentView === 'dashboard') {
+      mockData.dashboard.solarGeneration += (Math.random() - 0.5) * 2;
+      mockData.dashboard.totalConsumption += (Math.random() - 0.5) * 1.5;
+      mockData.dashboard.bessCharge += (Math.random() - 0.5) * 0.5;
+      
+      mockData.dashboard.solarGeneration = Math.max(0, Math.min(100, mockData.dashboard.solarGeneration));
+      mockData.dashboard.totalConsumption = Math.max(0, Math.min(80, mockData.dashboard.totalConsumption));
+      mockData.dashboard.bessCharge = Math.max(0, Math.min(100, mockData.dashboard.bessCharge));
+      
+      renderDashboard();
+    }
+  }, 10000);
+};
 </script>
 </body>
 </html>
